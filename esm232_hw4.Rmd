@@ -1,0 +1,87 @@
+---
+title: "ESM232 - HwK5"
+author: "Ruben Sanchez, Alex Millward and Mauricio Collado"
+date: "4/28/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+
+# load libraries
+
+library(tidyverse)
+library(purrr)
+library(deSolve)
+```
+
+### 1. Objective
+
+Implement a differential equation for growth rate incorporating carrying capacity. Then predict the population for the next 50 years employing the following set of parameters:<br>
+
+- Initial population of 1
+- Intrinsic growth rate of 0.05
+- Carrying capacity of 20<br>
+
+
+### 2. Change in population
+<br>
+We create a growth rate function with initial population (P0), intrinsic growth (r), and carrying capacity (k) as parameters.<br>
+
+```{r}
+#'  Population growth rate
+#' @param T  period of growth
+#' @param P initial population
+#' @param parms$r - base growth rate
+#' @param parms$k - carrying capacity
+#' @return change in population 
+#'
+dexpopk = function(time, P, parms) {
+  
+  # compute rate of change of population that includes carrying capacity
+  dexpop = parms$r*P*(1-P/parms$k)
+  
+  return(list(dexpop))
+}
+
+```
+
+### 3. Prediction for 50 years
+<br>
+We predict the population for next 50 years with the following parameters:<br>
+
+- Initial population of 1
+- Intrinsic growth rate of 0.05
+- Carrying capacity of 20
+
+```{r}
+# set parameters
+initial_pop=1
+params_rk = list(r=0.05, k=20) # same parameter names in function
+years = seq(from=1, to=50)
+
+#use solver and growth rate function
+results=ode(initial_pop, years, dexpopk, params_rk)
+
+# column names
+colnames(results)=c("year","P")
+
+# save results in a dataframe
+
+results_df <- as.data.frame(results) # same result as propose as rachel
+
+```
+<br>
+
+With the selected parameters, the population reachs a value 7.576973 in the year 50. <br>
+
+```{r}
+# plot
+ggplot(results_df, aes(year,P))+
+  geom_point()+
+  labs(title="Population for the next 50 years", 
+       y="Population", 
+       x="Years")+
+  theme_bw()
+```
+
