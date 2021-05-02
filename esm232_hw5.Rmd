@@ -26,7 +26,11 @@ Implement a differential equation for growth rate incorporating carrying capacit
 
 ### 2. Change in population
 <br>
-We create a growth rate function with initial population (P0), intrinsic growth (r), and carrying capacity (k) as parameters.<br>
+We create a growth rate function with initial population (P), intrinsic growth (r), and carrying capacity (k) as parameters. The growth has the following form: <br>
+
+$$dP/dT = r*P*(1-P/K)
+$$
+
 
 ```{r}
 #'  Population growth rate
@@ -60,7 +64,7 @@ initial_pop=1
 params_rk = list(r=0.05, k=20) # same parameter names in function
 years = seq(from=1, to=50)
 
-#use solver and growth rate function
+# use solver and growth rate function
 results=ode(initial_pop, years, dexpopk, params_rk)
 
 # column names
@@ -85,3 +89,30 @@ ggplot(results_df, aes(year,P))+
   theme_bw()
 ```
 
+<br>
+We do not reach the steady state on the year 50. We decided to test the model for 200 years, and we found out we reach the steady state after the year 150.<br>
+
+```{r}
+# test until the year 200
+years = seq(from=1, to=200)
+
+# use solver and growth rate function
+results=ode(initial_pop, years, dexpopk, params_rk)
+
+# column names
+colnames(results)=c("year","P")
+
+# save results in a dataframe
+
+results_df <- as.data.frame(results) 
+
+# plot
+ggplot(results_df, aes(year,P))+
+  geom_point()+
+  labs(title="Population for the next 200 years", 
+       y="Population", 
+       x="Years")+
+  theme_bw()
+
+```
+<br>
